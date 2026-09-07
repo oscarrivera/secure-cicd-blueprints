@@ -1,0 +1,13 @@
+{
+  "name": "example-node-app",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test src/sum.test.js"
+  }
+}

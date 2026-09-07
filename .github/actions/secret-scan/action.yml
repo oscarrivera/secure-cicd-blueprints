@@ -1,0 +1,30 @@
+name: secret-scan
+description: >
+  Ejecuta Gitleaks mediante gitleaks/gitleaks-action@v2. Este repositorio no
+  distribuye el binario. Revisa el action de terceros (permisos, SHA) antes
+  de habilitarlo en una organización privada. En orgs de pago Gitleaks exige
+  GITLEAKS_LICENSE.
+
+inputs:
+  github-token:
+    description: GITHUB_TOKEN del workflow llamante
+    required: true
+  gitleaks-license:
+    description: Licencia de Gitleaks (orgs privadas). Vacío en repos públicos.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Review note
+      shell: bash
+      run: |
+        echo "secret-scan usa gitleaks/gitleaks-action@v2 (etiqueta mayor)."
+        echo "En producción, fije el SHA del commit del action tras revisarlo."
+        echo "Plantilla de job equivalente: workflows/secret-scan-job.yml"
+    - name: Gitleaks
+      uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        GITLEAKS_LICENSE: ${{ inputs.gitleaks-license }}

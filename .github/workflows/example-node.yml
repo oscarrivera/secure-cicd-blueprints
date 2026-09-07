@@ -1,0 +1,38 @@
+# Blueprint: Node de ejemplo + composites de este repositorio.
+# No se dispara en push (el CI real de este repo es ci.yml) para no duplicar jobs.
+# Úsalo como flujo reusable o dispara workflow_dispatch para probarlo.
+
+name: example-node
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  node-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: examples/node-app/package-lock.json
+      - uses: ./.github/actions/node-quality
+        with:
+          working-directory: examples/node-app
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Terceros: revisar gitleaks/gitleaks-action y fijar SHA en producción.
+      - uses: ./.github/actions/secret-scan
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          gitleaks-license: ${{ secrets.GITLEAKS_LICENSE }}

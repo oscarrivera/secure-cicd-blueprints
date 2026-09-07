@@ -1,0 +1,26 @@
+# CI de este repositorio: ejecuta los tests de examples/node-app
+# con el composite node-quality (el mismo que el blueprint).
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  example-node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: examples/node-app/package-lock.json
+      - uses: ./.github/actions/node-quality
+        with:
+          working-directory: examples/node-app

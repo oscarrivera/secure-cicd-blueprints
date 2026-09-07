@@ -1,0 +1,41 @@
+name: php-quality
+description: >
+  composer validate y PHPUnit si existen. PHP y Composer deben estar en PATH
+  (el llamante instala el runtime; este action no tira de setup-php de terceros).
+
+inputs:
+  working-directory:
+    description: Directorio del composer.json
+    required: false
+    default: "."
+
+runs:
+  using: composite
+  steps:
+    - name: Validate composer.json
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        set -euo pipefail
+        if [[ ! -f composer.json ]]; then
+          echo "composer.json ausente; nada que validar"
+          exit 0
+        fi
+        composer validate --strict --no-check-publish
+    - name: PHPUnit
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        set -euo pipefail
+        if [[ ! -f composer.json ]]; then
+          echo "composer.json ausente; se omite PHPUnit"
+          exit 0
+        fi
+        if [[ ! -d vendor ]]; then
+          composer install --no-interaction --prefer-dist --no-progress
+        fi
+        if [[ -x vendor/bin/phpunit ]]; then
+          vendor/bin/phpunit
+          exit 0
+        fi
+        echo "PHPUnit no está instalado en vendor/bin/phpunit; se omite"
